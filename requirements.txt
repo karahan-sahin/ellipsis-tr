@@ -1,0 +1,16 @@
+pandas
+numpy
+scikit-learn
+torch
+transformers
+nltk
+evaluate
+seqeval
+f1
+rouge
+rouge_score
+transformers
+accelerate==0.20.3
+stanza
+huggingface_hub
+deep-translator==1.11.4
