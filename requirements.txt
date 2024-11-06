@@ -11,6 +11,5 @@ rouge
 rouge_score
 transformers
 accelerate==0.20.3
-stanza
 huggingface_hub
-deep-translator==1.11.4
+wandb

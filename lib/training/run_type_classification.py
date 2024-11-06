@@ -13,6 +13,9 @@ load_dotenv()
 
 def init_wandb(run_name):
     import wandb
+    wandb.login(
+        key=os.getenv('WANDB_API_KEY')
+    )
     wandb.init(
         project="ellipsis-tr",
         entity="boun-pilab",
