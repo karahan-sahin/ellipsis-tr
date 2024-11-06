@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     if args.use_wandb:
         # Create a new run name
-        run_name = f"{args.model_name}-{args.dataset_name}-span-classification"
+        run_name = f"{args.model_name}-{args.dataset_name}-{args.extraction_type}-span-classification"
         init_wandb(run_name)
 
 
