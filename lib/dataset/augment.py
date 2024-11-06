@@ -213,8 +213,6 @@ def add_augmented_data(data: pd.DataFrame,
     return pd.concat([data, pd.DataFrame(AUGMENTS)])
 
 
-
-
 def augment_with_backtranslation():
     """This function takes the dataset and augments it with backtranslation.
     
