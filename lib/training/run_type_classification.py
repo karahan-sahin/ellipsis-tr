@@ -166,6 +166,7 @@ if __name__ == "__main__":
             model_name=args.model_name,
             task='classification',
             training_params=training_params,
+            optimizer_params=optimizer_params,
             model_save_path=args.output_dir,
             num_labels=num_labels,
         )

@@ -2,7 +2,7 @@ pandas
 scikit-learn
 torch
 transformers
-dotenv
+python-dotenv
 nltk
 evaluate
 seqeval
