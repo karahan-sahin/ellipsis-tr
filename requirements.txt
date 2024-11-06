@@ -10,6 +10,7 @@ f1
 rouge
 rouge_score
 transformers
-accelerate==0.20.3
+accelerate>=0.26.0
+turkish-lm-tuner
 huggingface_hub
 wandb
