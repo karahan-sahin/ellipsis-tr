@@ -2,11 +2,8 @@ import os
 import pandas as pd
 from transformers import (
     AutoTokenizer, 
-    AutoModelForTokenClassification, 
-    Trainer, 
-    TrainingArguments
 )
-from datasets import Dataset, load_metric
+from datasets import Dataset
 from lib.training.turna import TrainerForClassification
 from dotenv import load_dotenv
 load_dotenv()
