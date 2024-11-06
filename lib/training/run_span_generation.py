@@ -122,7 +122,6 @@ if __name__ == "__main__":
         'output_dir': args.output_dir,
         'evaluation_strategy': 'epoch',
         'save_strategy': 'epoch',   
-        'predict_with_generate': True
     }
 
     optimizer_params = {
