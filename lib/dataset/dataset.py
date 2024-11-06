@@ -19,8 +19,6 @@ class HumanAnnotationStatus(Enum):
     ACCEPTED = "STATUS_CODE_500"
 
 
-# Models
-
 class Annotation(BaseModel):
     
     annotation_type: str
@@ -47,13 +45,11 @@ class Instance(BaseModel):
     human_annotation_status: HumanAnnotationStatus
         
 
-
 class ExperimentType(Enum):
     
     TYPE_CLASSIFICATION = 'TYPE_CLASSIFICATION'
     DISCRIMINITIVE_SPAN_CLASSIFICATION  = 'DISCRIMINITIVE_SPAN_CLASSIFICATION'
     EXTRACTIVE_SPAN_CLASSIFICATION  = 'EXTRACTIVE_SPAN_CLASSIFICATION'
-    CORRELATE_GENERATION = 'CORRELATE_GENERATION'
     
 class Environment(BaseModel):
     

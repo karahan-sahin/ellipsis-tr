@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument('--model_name', type=str, required=True, help='Name of the model to use')
 
     # Optional arguments
+    parser.add_argument('--model_type', type=str, default='encoder' , help='Model type')
     parser.add_argument('--output_dir', type=str, default='./results', help='Directory to save the model')
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate for training')
     parser.add_argument('--num_epochs', type=int, default=10, help='Number of epochs to train')
@@ -57,13 +58,13 @@ if __name__ == "__main__":
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
     
-    # Rename columns {'candidate_text': 'text', 'elliptical_type': 'label'}
-    train_df = train_df.rename(columns={'candidate_text': 'text', 'elliptical_type': 'label'})
-    val_df = val_df.rename(columns={'candidate_text': 'text', 'elliptical_type': 'label'})
-    test_df = test_df.rename(columns={'candidate_text': 'text', 'elliptical_type': 'label'})
+    # Rename columns {'candidate_text': 'text', }
+    train_df = train_df.rename(columns={'candidate_text': 'text', })
+    val_df = val_df.rename(columns={'candidate_text': 'text', })
+    test_df = test_df.rename(columns={'candidate_text': 'text', })
 
     # Get the unique labels
-    labels = train_df['label'].unique()
+    labels = train_df['elliptical_type'].unique()
     num_labels = len(labels)
 
     # Create label2id and id2label mappings
@@ -71,9 +72,9 @@ if __name__ == "__main__":
     label2id = {label: i for i, label in id2label.items()}
 
     # Format labels as integers
-    train_df['label'] = train_df['label'].apply(lambda x: label2id[x])
-    val_df['label'] = val_df['label'].apply(lambda x: label2id[x])
-    test_df['label'] = test_df['label'].apply(lambda x: label2id[x])
+    train_df['label'] = train_df['elliptical_type'].apply(lambda x: label2id[x])
+    val_df['label'] = val_df['elliptical_type'].apply(lambda x: label2id[x])
+    test_df['label'] = test_df['elliptical_type'].apply(lambda x: label2id[x])
     
     # Convert the DataFrame to a Hugging Face Dataset
     train_dataset = Dataset.from_pandas(train_df)
@@ -82,54 +83,101 @@ if __name__ == "__main__":
 
     # Load the tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(
-        args.model_name, 
-        num_labels=num_labels, 
-        id2label=id2label,
-    )
 
-    # Tokenize the dataset
-    def tokenize_function(examples):
-        return tokenizer(examples['text'], padding="max_length", truncation=True)
+    if args.model_type == 'encoder':
+        model = AutoModelForSequenceClassification.from_pretrained(
+            args.model_name, 
+            num_labels=num_labels, 
+            id2label=id2label,
+        )
+        # Tokenize the dataset
+        def tokenize_function(examples):
+            return tokenizer(examples['text'], padding="max_length", truncation=True)
+        
+        tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
+        tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
+        tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-    tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
-    tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
-    tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
+        # Create EarlyStoppingCallback
+        from transformers import EarlyStoppingCallback
+        early_stopping = EarlyStoppingCallback(early_stopping_patience=3)
 
-    # Create EarlyStoppingCallback
-    from transformers import EarlyStoppingCallback
-    early_stopping = EarlyStoppingCallback(early_stopping_patience=3)
+        # Define training arguments
+        training_args = TrainingArguments(
+            output_dir=args.output_dir,
+            evaluation_strategy="steps",
+            logging_steps=args.logging_steps,
 
-    # Define training arguments
-    training_args = TrainingArguments(
+            learning_rate=args.learning_rate,
+            per_device_train_batch_size=args.per_device_train_batch_size,
+            per_device_eval_batch_size=args.per_device_eval_batch_size,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            num_train_epochs=args.num_epochs,
+            weight_decay=args.weight_decay,
 
-        output_dir=args.output_dir,
-        evaluation_strategy="steps",
-        logging_steps=args.logging_steps,
+            report_to=args.report_to,
+            push_to_hub=args.push_to_hub,
+            hub_model_id=args.hub_model_id,
+            hub_token=os.environ.get('HF_TOKEN', None),
+            load_best_model_at_end=True,
+        )
 
-        learning_rate=args.learning_rate,
-        per_device_train_batch_size=args.per_device_train_batch_size,
-        per_device_eval_batch_size=args.per_device_eval_batch_size,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        num_train_epochs=args.num_epochs,
-        weight_decay=args.weight_decay,
+        # Initialize the Trainer
+        trainer = Trainer(
+            model=model,
+            args=training_args,
+            train_dataset=tokenized_train_dataset,
+            eval_dataset=tokenized_val_dataset,
+            tokenizer=tokenizer,
+            callbacks=[early_stopping],
+        )
 
-        report_to=args.report_to,
-        push_to_hub=args.push_to_hub,
-        hub_model_id=args.hub_model_id,
-        hub_token=os.environ.get('HF_TOKEN', None),
-        load_best_model_at_end=True,
-    )
+    elif args.model_type == 'encoder_decoder':
+        def tokenize_function(examples):
+            inputs = tokenizer(
+                examples['text'], 
+                text_target=examples['elliptical_type'],
+                padding="max_length", 
+                truncation=True
+            )
+            return inputs
+        
+        tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
+        tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
+        tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-    # Initialize the Trainer
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=tokenized_train_dataset,
-        eval_dataset=tokenized_val_dataset,
-        tokenizer=tokenizer,
-        callbacks=[early_stopping],
-    )
+        training_params = {
+            'num_train_epochs': args.num_epochs,
+            'per_device_train_batch_size': args.per_device_train_batch_size,
+            'per_device_eval_batch_size': args.per_device_eval_batch_size,
+            'output_dir': args.output_dir,
+            'evaluation_strategy': 'epoch',
+            'save_strategy': 'epoch',   
+        }
+
+        optimizer_params = {
+            'optimizer_type': 'adafactor',
+            'scheduler': False,
+        }
+
+        from turkish_lm_tuner import TrainerForClassification
+
+        model_trainer = TrainerForClassification(
+            model_name=args.model_name,
+            task='classification',
+            training_params=training_params,
+            model_save_path=args.output_dir,
+            num_labels=num_labels,
+        )
+
+        trainer, model = model_trainer.train_and_evaluate(tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset)
+
+        model.save_pretrained(args.output_dir)
+        tokenizer.save_pretrained(args.output_dir)
+
+    else:
+        raise ValueError(f"Model type {args.model_type} is not supported")
+
 
     # Train the model
     trainer.train()
