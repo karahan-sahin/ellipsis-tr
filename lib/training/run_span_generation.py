@@ -99,12 +99,12 @@ if __name__ == "__main__":
     # Load the tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
-    labels = ['Eksilti', 'Eksilti Değil'] if args.extraction_type == 'discriminative' else train_df.elliptical_type.unique()
+    labels = ['Eksiltim', 'Eksiltim Değil'] if args.extraction_type == 'discriminative' else train_df.elliptical_type.unique()
     num_labels = len(labels)
 
     def format_instance(text, ellipsis, extraction_type):
         if extraction_type == 'discriminative':
-            return f'ner {text}', (f'Eksilti: {ellipsis}' if ellipsis != 'No Ellipsis' else 'Eksilti Değil')
+            return f'ner {text}', (f'Eksiltim: {ellipsis}' if ellipsis != 'No Ellipsis' else 'Eksiltim Değil')
         elif extraction_type == 'extractive':
             return f'ner {text}', f'{ellipsis}: {ellipsis}'
 
