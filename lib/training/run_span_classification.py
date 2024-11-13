@@ -1,4 +1,5 @@
 import os
+import wandb
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForTokenClassification, Trainer, TrainingArguments
 from datasets import Dataset, load_metric
@@ -7,7 +8,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def init_wandb(run_name):
-    import wandb
+    
+    if not args.use_wandb:
+        os.environ['WANDB_DISABLED'] = 'true'
+        return
+
     wandb.login(
         key=os.getenv('WANDB_API_KEY')
     )
@@ -16,7 +21,6 @@ def init_wandb(run_name):
         project="ellipsis-tr",
         name=run_name,
     )
-
 
 def parse_args():
 
@@ -35,15 +39,14 @@ def parse_args():
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
     parser.add_argument('--num_epochs', type=int, default=3, help='Number of epochs')
     parser.add_argument('--output_dir', type=str, default='./results', help='Output directory')
-    parser.add_argument('--logging_steps', type=int, default=100, help='Logging steps')
+    parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')
     parser.add_argument('--per_device_train_batch_size', type=int, default=16, help='Per device train batch size')
     parser.add_argument('--per_device_eval_batch_size', type=int, default=16, help='Per device eval batch size')
     parser.add_argument('--save_steps', type=int, default=500, help='Save steps')
+    parser.add_argument('--eval_steps', type=int, default=2, help='Eval steps')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
-
     parser.add_argument('--report_to', type=str, default='wandb', help='Report to')
     parser.add_argument('--push_to_hub', action='store_true', help='Push to hub')
-
     parser.add_argument('--use_wandb', action='store_true', help='Use wandb')
 
     return parser.parse_args()
@@ -52,15 +55,14 @@ if __name__ == "__main__":
 
     args = parse_args()
 
-    if args.use_wandb:
-        # Create a new run name
-        run_name = f"{args.model_name}-{args.dataset_name}-{args.extraction_type}-span-classification"
-        init_wandb(run_name)
-
+    # Create a new run name
+    run_name = f"{args.model_name.split('/')[0]}-{args.extraction_type}-span-classification"
+    
+    init_wandb(run_name)
 
     # Load dataset from csv file
     train_df = pd.read_csv(args.dataset_file)
-    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
+    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))[:20]
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
 
     # Read tokenized_text and discriminative_span and extractive_span columns as lists,
@@ -106,9 +108,7 @@ if __name__ == "__main__":
     label2id = {label: i for i, label in enumerate(label_list)}
 
     # Print the first example
-    def print_example(df):
-        words = df.iloc[0]["tokens"]
-        labels = df.iloc[0]["ner_tags"]
+    def print_example(words, labels):
         line1 = ""
         line2 = ""
         for word, label in zip(words, labels):
@@ -120,9 +120,9 @@ if __name__ == "__main__":
         print(line2)
         print('--'*20)
 
-    print_example(train_df)
-    print_example(val_df)
-    print_example(test_df)
+    print_example(train_df['tokens'][0], train_df['ner_tags'][0])
+    print_example(val_df['tokens'][0], val_df['ner_tags'][0])
+    print_example(test_df['tokens'][0], test_df['ner_tags'][0])
 
     # Apply label2id to ner_tags
     train_df['ner_tags'] = train_df['ner_tags'].apply(lambda x: [label2id[label] for label in x])
@@ -140,7 +140,12 @@ if __name__ == "__main__":
 
     # # Tokenize dataset
     def tokenize_and_align_labels(examples):
-        tokenized_inputs = tokenizer(examples["tokens"], truncation=True, is_split_into_words=True)
+        tokenized_inputs = tokenizer(
+            examples["tokens"],
+            padding=True, 
+            truncation=True, 
+            is_split_into_words=True
+        )
         labels = []
         for i, label in enumerate(examples[f"ner_tags"]):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
@@ -164,7 +169,6 @@ if __name__ == "__main__":
     }
 
     # Define label list
-    # Load metric
     metric = load_metric("seqeval")
 
     # Define compute metrics function
@@ -173,12 +177,19 @@ if __name__ == "__main__":
         predictions = predictions.argmax(axis=2)
 
         true_labels = [[label_list[l] for l in label if l != -100] for label in labels]
-        true_predictions = [
+        predictions = [
             [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
 
-        results = metric.compute(predictions=true_predictions, references=true_labels)
+        # for i in range(len(true_labels)):
+        #     print('Model Predictions:')
+        #     print(print_example(tokenized_datasets['test']['tokens'][i], predictions[i]))
+        #     print('True Labels:')
+        #     print(print_example(tokenized_datasets['test']['tokens'][i], true_labels[i]))
+        #     print('--'*20)
+
+        results = metric.compute(predictions=predictions, references=true_labels)
         return {
             "precision": results["overall_precision"],
             "recall": results["overall_recall"],
@@ -197,7 +208,8 @@ if __name__ == "__main__":
         evaluation_strategy="steps",
         logging_dir=args.output_dir,
         seed=args.seed,
-        report_to=args.report_to,
+        eval_steps=args.eval_steps,
+        report_to=args.report_to if args.use_wandb else None,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate
     )

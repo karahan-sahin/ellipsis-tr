@@ -40,13 +40,14 @@ def parse_args():
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate for training')
     parser.add_argument('--num_epochs', type=int, default=10, help='Number of epochs to train')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay for training')
-    parser.add_argument('--evaluation_strategy', type=str, default='epoch', help='Evaluation strategy')
+    parser.add_argument('--evaluation_strategy', type=str, default='steps', help='Evaluation strategy')
+    parser.add_argument('--eval_steps', type=int, default=2, help='Evaluation steps')
     parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')
     parser.add_argument('--report_to', type=str, default=None, help='Report to')
     parser.add_argument('--push_to_hub', action='store_true', help='Push to Hub')
     parser.add_argument('--hub_model_id', type=str, default=None, help='Hub model ID')
-    parser.add_argument('--per_device_train_batch_size', type=int, default=8, help='Batch size')
-    parser.add_argument('--per_device_eval_batch_size', type=int, default=8, help='Batch size')
+    parser.add_argument('--per_device_train_batch_size', type=int, default=2, help='Batch size')
+    parser.add_argument('--per_device_eval_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
 
     return parser.parse_args()
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     init_wandb(run_name)
 
     train_df = pd.read_csv(args.dataset_file)
-    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
+    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))[:4]
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
     
     # Rename columns {'candidate_text': 'text', }
@@ -103,6 +104,35 @@ if __name__ == "__main__":
         tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
         tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
 
+        import evaluate
+        # get precision, recall, f1
+        accuracy = evaluate.load('accuracy')
+        precision, recall, f1 = evaluate.load('precision'), evaluate.load('recall'), evaluate.load('f1')
+
+        def compute_metrics(eval_pred):
+            predictions, labels = eval_pred
+            if isinstance(predictions, tuple):
+                predictions = predictions[0]
+            predictions = predictions.argmax(axis=1)
+            # Calculate the metrics
+            return {
+                'accuracy': accuracy.compute(
+                    predictions=predictions, references=labels
+                )['accuracy'],
+                'precision': precision.compute(
+                    predictions=predictions, references=labels, average='macro'
+                )['precision'],
+                'recall': recall.compute(
+                    predictions=predictions, references=labels, average='macro'
+                )['recall'],
+                'macro-f1': f1.compute(
+                    predictions=predictions, references=labels, average='macro'
+                )['f1'],
+                'micro-f1': f1.compute(
+                    predictions=predictions, references=labels, average='micro'
+                )['f1'],
+            }
+
         # Create EarlyStoppingCallback
         from transformers import EarlyStoppingCallback
         early_stopping = EarlyStoppingCallback(early_stopping_patience=3)
@@ -134,6 +164,7 @@ if __name__ == "__main__":
             train_dataset=tokenized_train_dataset,
             eval_dataset=tokenized_val_dataset,
             tokenizer=tokenizer,
+            compute_metrics=compute_metrics,
             callbacks=[early_stopping],
         )
 
