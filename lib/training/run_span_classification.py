@@ -62,8 +62,15 @@ if __name__ == "__main__":
 
     args = parse_args()
 
+    if 'bert' in args.model_name:
+        model_type = 'bert'
+    elif 'mt5' in args.model_name:
+        model_type = 'mt5'
+    elif 'TURNA' in args.model_name:
+        model_type = 'turna'
+
     # Create a new run name
-    run_name = f"{args.model_name.split('/')[0]}-{args.extraction_type}-span-classification"
+    run_name = f"{model_type}-{args.extraction_type}-span-classification"
     
     init_wandb(run_name)
 
@@ -71,8 +78,6 @@ if __name__ == "__main__":
     train_df = pd.read_csv(args.dataset_file)
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
-
-    # Drop duplicates
 
 
     high_count = [
@@ -141,6 +146,20 @@ if __name__ == "__main__":
     train_df['tokenized_span'] = train_df['span'].apply(tokenizer.tokenize)
     val_df['tokenized_span'] = val_df['span'].apply(tokenizer.tokenize)
     test_df['tokenized_span'] = test_df['span'].apply(tokenizer.tokenize)
+
+    # Print a table that counts (num_examples, avg_num_tokens, avg_num_spans) for a dataset
+    def print_stats(df):
+        num_examples = len(df)
+        avg_num_tokens = df['tokenized_text'].apply(len).mean()
+        avg_num_spans = df['tokenized_span'].apply(len).mean()
+        print(f"Num Examples: {num_examples} & {avg_num_tokens}, Avg Num Spans: {avg_num_spans}")
+
+    print('Train Stats:')
+    print_stats(train_df)
+    print('Val Stats:')
+    print_stats(val_df)
+    print('Test Stats:')
+    print_stats(test_df)
 
     from string import punctuation
     # Remove if punctuations are at the beginning or end of the span

@@ -66,8 +66,17 @@ if __name__ == "__main__":
     # Load the CSV file into a pandas DataFrame
     args = parse_args()
 
+    if 'bert' in args.model_name:
+        model_name = 'berturk'
+    elif 'mt5' in args.model_name:
+        model_name = 'mt5'
+    elif 'TURNA' in args.model_name:
+        model_name = 'turna'
+    else:
+        raise ValueError(f"Model {args.model_name} is not supported")
+
     # create a wandb run_name
-    run_name = f"{args.model_name.split('/')[-1]}-{args.dataset_file.split('/')[-1].split('.')[0]}"
+    run_name = f"{model_name}-{args.model_type}-{args.train_size}-type-classification"
     init_wandb(run_name, args)
 
     train_df = pd.read_csv(args.dataset_file)
@@ -134,6 +143,22 @@ if __name__ == "__main__":
 
     # Load the tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+
+    # Tokenize the dataset
+    train_df['tokens'] = train_df['text'].apply(lambda x: tokenizer.tokenize(x))
+    val_df['tokens'] = val_df['text'].apply(lambda x: tokenizer.tokenize(x))
+    test_df['tokens'] = test_df['text'].apply(lambda x: tokenizer.tokenize(x))
+
+    # print num_examples, avg_length per dataset
+    def print_dataset_stats(df, name):
+        num_examples = len(df)
+        avg_length = df['tokens'].apply(len).mean()
+        print(f'{name} dataset: {num_examples} examples, avg_length: {avg_length:.2f}')
+        
+
+    print_dataset_stats(train_df, 'Train')
+    print_dataset_stats(val_df, 'Val')
+    print_dataset_stats(test_df, 'Test')
 
     if args.model_type == 'encoder':
         model = AutoModelForSequenceClassification.from_pretrained(
