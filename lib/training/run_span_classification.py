@@ -1,8 +1,9 @@
 import os
 import wandb
 import pandas as pd
+from datasets import Dataset
+from evaluate import load_metric
 from transformers import AutoTokenizer, AutoModelForTokenClassification, Trainer, TrainingArguments
-from datasets import Dataset, load_metric
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -182,12 +183,12 @@ if __name__ == "__main__":
             for prediction, label in zip(predictions, labels)
         ]
 
-        # for i in range(len(true_labels)):
-        #     print('Model Predictions:')
-        #     print(print_example(tokenized_datasets['test']['tokens'][i], predictions[i]))
-        #     print('True Labels:')
-        #     print(print_example(tokenized_datasets['test']['tokens'][i], true_labels[i]))
-        #     print('--'*20)
+        for i in range(len(true_labels)):
+            print('Model Predictions:')
+            print(print_example(tokenized_datasets['test']['tokens'][i], predictions[i]))
+            print('True Labels:')
+            print(print_example(tokenized_datasets['test']['tokens'][i], true_labels[i]))
+            print('--'*20)
 
         results = metric.compute(predictions=predictions, references=true_labels)
         return {
