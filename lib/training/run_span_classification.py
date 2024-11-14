@@ -44,12 +44,17 @@ def parse_args():
     parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')
     parser.add_argument('--per_device_train_batch_size', type=int, default=16, help='Per device train batch size')
     parser.add_argument('--per_device_eval_batch_size', type=int, default=16, help='Per device eval batch size')
+    parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
+
     parser.add_argument('--save_steps', type=int, default=500, help='Save steps')
     parser.add_argument('--eval_steps', type=int, default=500, help='Eval steps')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--report_to', type=str, default='wandb', help='Report to')
     parser.add_argument('--push_to_hub', action='store_true', help='Push to hub')
     parser.add_argument('--use_wandb', action='store_true', help='Use wandb')
+
+    parser.add_argument('--train_size', type=str, default='all', help='Train size')
+
 
     return parser.parse_args()
 
@@ -66,6 +71,40 @@ if __name__ == "__main__":
     train_df = pd.read_csv(args.dataset_file)
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
+
+    high_count = [
+        "Genitive Drop",
+        "Subject Drop",
+        "Gapping",
+        "Argument Drop",
+        "Object Drop",
+        "NP Drop",
+        "No Ellipsis",
+    ]
+
+    mid_count = [
+        "Genitive Drop",
+        "Subject Drop",
+        "Gapping",
+        "Argument Drop",
+        "Object Drop",
+        "Stripping",
+        "NP Drop",
+        "Fragment",
+        "Ki Expression",
+        "No Ellipsis",
+        "VP Ellipsis",
+        "Object CP Drop"
+    ]
+
+    if args.train_size == 'high_count':
+        train_df = train_df[train_df['elliptical_type'].isin(high_count)]
+        val_df = val_df[val_df['elliptical_type'].isin(high_count)]
+        test_df = test_df[test_df['elliptical_type'].isin(high_count)]
+    elif args.train_size == 'mid_count':
+        train_df = train_df[train_df['elliptical_type'].isin(mid_count)]
+        val_df = val_df[val_df['elliptical_type'].isin(mid_count)]
+        test_df = test_df[test_df['elliptical_type'].isin(mid_count)]
 
     if args.extraction_type == 'discriminative':
         label_list = [ 'O', 'B-ANTECEDENT', 'I-ANTECEDENT']
@@ -246,16 +285,20 @@ if __name__ == "__main__":
 
     # Define training arguments
     training_args = TrainingArguments(
+
         output_dir=args.output_dir,
         num_train_epochs=args.num_epochs,
         per_device_train_batch_size=args.per_device_train_batch_size,
         per_device_eval_batch_size=args.per_device_eval_batch_size,
+        gradient_accumulation_steps=args.gradient_accumulation_steps,
+
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
+        eval_steps=args.eval_steps,
         eval_strategy="steps",
         save_strategy='no',
+
         load_best_model_at_end=False,
-        eval_steps=args.eval_steps,
         logging_dir=args.output_dir,
         seed=args.seed,
         report_to=args.report_to if args.use_wandb else None,

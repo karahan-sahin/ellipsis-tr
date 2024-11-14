@@ -52,9 +52,12 @@ def parse_args():
 
     parser.add_argument('--push_to_hub', action='store_true', help='Push to Hub')
     parser.add_argument('--hub_model_id', type=str, default=None, help='Hub model ID')
+
     parser.add_argument('--per_device_train_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--per_device_eval_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
+
+    parser.add_argument('--train_size', type=str, default='all', help='Train size')
 
     parser.add_argument('--dev', action='store_true', help='Development mode')
 
@@ -71,6 +74,41 @@ if __name__ == "__main__":
     train_df = pd.read_csv(args.dataset_file)
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
+
+    # Fil
+    high_count = [
+        "Genitive Drop",
+        "Subject Drop",
+        "Gapping",
+        "Argument Drop",
+        "Object Drop",
+        "NP Drop",
+        "No Ellipsis",
+    ]
+
+    mid_count = [
+        "Genitive Drop",
+        "Subject Drop",
+        "Gapping",
+        "Argument Drop",
+        "Object Drop",
+        "Stripping",
+        "NP Drop",
+        "Fragment",
+        "Ki Expression",
+        "No Ellipsis",
+        "VP Ellipsis",
+        "Object CP Drop"
+    ]
+
+    if args.train_size == 'high_count':
+        train_df = train_df[train_df['elliptical_type'].isin(high_count)]
+        val_df = val_df[val_df['elliptical_type'].isin(high_count)]
+        test_df = test_df[test_df['elliptical_type'].isin(high_count)]
+    elif args.train_size == 'mid_count':
+        train_df = train_df[train_df['elliptical_type'].isin(mid_count)]
+        val_df = val_df[val_df['elliptical_type'].isin(mid_count)]
+        test_df = test_df[test_df['elliptical_type'].isin(mid_count)]
     
     # Rename columns {'candidate_text': 'text', }
     train_df = train_df.rename(columns={'candidate_text': 'text', })
@@ -156,11 +194,13 @@ if __name__ == "__main__":
             logging_steps=args.logging_steps,
             eval_steps=args.eval_steps,
             learning_rate=args.learning_rate,
+            weight_decay=args.weight_decay,
+
+            num_train_epochs=args.num_epochs,
             per_device_train_batch_size=args.per_device_train_batch_size,
             per_device_eval_batch_size=args.per_device_eval_batch_size,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
-            num_train_epochs=args.num_epochs,
-            weight_decay=args.weight_decay,
+
             report_to='wandb' if not args.dev else None,
             push_to_hub=args.push_to_hub,
             hub_model_id=args.hub_model_id,
