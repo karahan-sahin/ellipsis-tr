@@ -42,7 +42,7 @@ def parse_args():
     parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs to train')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay for training')
     parser.add_argument('--evaluation_strategy', type=str, default='steps', help='Evaluation strategy')
-    parser.add_argument('--eval_steps', type=int, default=200, help='Evaluation steps')
+    parser.add_argument('--eval_steps', type=int, default=500, help='Evaluation steps')
     parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')
     parser.add_argument('--report_to', type=str, default=None, help='Report to')
     parser.add_argument('--push_to_hub', action='store_true', help='Push to Hub')
