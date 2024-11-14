@@ -14,7 +14,7 @@ ls -ah
 pip install -r requirements.txt
 
 python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.train.csv' \
-                                                --model_name="google/mt5-base" \
+                                                --model_name="boun-tabi-LMG/TURNA" \
                                                 --hub_model_id='ellipsis-type-turna' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=4 \
@@ -23,7 +23,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --model_type='encoder'
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
-                                                 --model_name="google/mt5-base" \
+                                                 --model_name="boun-tabi-LMG/TURNA" \
                                                  --hub_model_id='ellipsis-extractive-turna' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=4 \
@@ -33,7 +33,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --eval_steps=500
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
-                                                 --model_name="google/mt5-base" \
+                                                 --model_name="boun-tabi-LMG/TURNA" \
                                                  --hub_model_id='ellipsis-discriminative-turna' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=4 \
