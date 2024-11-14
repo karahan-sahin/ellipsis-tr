@@ -1,8 +1,8 @@
 import os
 import wandb
+import evaluate
 import pandas as pd
 from datasets import Dataset
-from evaluate import load_metric
 from transformers import AutoTokenizer, AutoModelForTokenClassification, Trainer, TrainingArguments
 
 from dotenv import load_dotenv
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     }
 
     # Define label list
-    metric = load_metric("seqeval")
+    metric = evaluate.load("seqeval")
 
     # Define compute metrics function
     def compute_metrics(p):

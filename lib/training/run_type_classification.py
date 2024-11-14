@@ -1,6 +1,8 @@
 import os
+import evaluate
 import pandas as pd
 from datasets import Dataset
+from sklearn.metrics import classification_report
 from transformers import (
     Trainer, 
     TrainingArguments, 
@@ -8,7 +10,6 @@ from transformers import (
     AutoModelForSequenceClassification,
     EarlyStoppingCallback,
 )
-import json
 from lib.training.turna import TrainerForClassification
 
 from dotenv import load_dotenv
@@ -104,8 +105,6 @@ if __name__ == "__main__":
         tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
         tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
 
-        import evaluate
-        from sklearn.metrics import classification_report
         # get precision, recall, f1
         accuracy = evaluate.load('accuracy')
         precision, recall, f1 = evaluate.load('precision'), evaluate.load('recall'), evaluate.load('f1')
@@ -117,11 +116,12 @@ if __name__ == "__main__":
             predictions = predictions.argmax(axis=1)
 
             # Create confusion matrix
-            classification_report = classification_report(
+            report = classification_report(
                 y_true=label_ids, y_pred=predictions, target_names=labels
             )
 
-            print(classification_report)
+            print(report)
+            print('--'*20)
 
             # Calculate the metrics
             return {
