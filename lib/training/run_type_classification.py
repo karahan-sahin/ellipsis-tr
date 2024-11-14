@@ -38,7 +38,7 @@ def parse_args():
     parser.add_argument('--model_type', type=str, default='encoder' , help='Model type')
     parser.add_argument('--output_dir', type=str, default='./results', help='Directory to save the model')
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate for training')
-    parser.add_argument('--num_epochs', type=int, default=10, help='Number of epochs to train')
+    parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs to train')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay for training')
     parser.add_argument('--evaluation_strategy', type=str, default='steps', help='Evaluation strategy')
     parser.add_argument('--eval_steps', type=int, default=2, help='Evaluation steps')
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     init_wandb(run_name)
 
     train_df = pd.read_csv(args.dataset_file)
-    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))[:4]
+    val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
     
     # Rename columns {'candidate_text': 'text', }
@@ -105,37 +105,46 @@ if __name__ == "__main__":
         tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
 
         import evaluate
+        from sklearn.metrics import classification_report
         # get precision, recall, f1
         accuracy = evaluate.load('accuracy')
         precision, recall, f1 = evaluate.load('precision'), evaluate.load('recall'), evaluate.load('f1')
 
         def compute_metrics(eval_pred):
-            predictions, labels = eval_pred
+            predictions, label_ids = eval_pred
             if isinstance(predictions, tuple):
                 predictions = predictions[0]
             predictions = predictions.argmax(axis=1)
+
+            # Create confusion matrix
+            classification_report = classification_report(
+                y_true=label_ids, y_pred=predictions, target_names=labels
+            )
+
+            print(classification_report)
+
             # Calculate the metrics
             return {
                 'accuracy': accuracy.compute(
-                    predictions=predictions, references=labels
+                    predictions=predictions, references=label_ids
                 )['accuracy'],
                 'precision': precision.compute(
-                    predictions=predictions, references=labels, average='macro'
+                    predictions=predictions, references=label_ids, average='macro'
                 )['precision'],
                 'recall': recall.compute(
-                    predictions=predictions, references=labels, average='macro'
+                    predictions=predictions, references=label_ids, average='macro'
                 )['recall'],
                 'macro-f1': f1.compute(
-                    predictions=predictions, references=labels, average='macro'
+                    predictions=predictions, references=label_ids, average='macro'
                 )['f1'],
                 'micro-f1': f1.compute(
-                    predictions=predictions, references=labels, average='micro'
+                    predictions=predictions, references=label_ids, average='micro'
                 )['f1'],
             }
 
         # Create EarlyStoppingCallback
         from transformers import EarlyStoppingCallback
-        early_stopping = EarlyStoppingCallback(early_stopping_patience=3)
+        early_stopping = EarlyStoppingCallback(early_stopping_patience=10)
 
         # Define training arguments
         training_args = TrainingArguments(
