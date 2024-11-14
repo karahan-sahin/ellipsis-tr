@@ -57,8 +57,6 @@ def parse_args():
     parser.add_argument('--per_device_eval_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
 
-    parser.add_argument('--train_size', type=str, default='all', help='Train size')
-
     parser.add_argument('--dev', action='store_true', help='Development mode')
 
     return parser.parse_args()
@@ -206,7 +204,7 @@ if __name__ == "__main__":
             hub_model_id=args.hub_model_id,
             hub_token=os.environ.get('HF_TOKEN', None),
             load_best_model_at_end=False,
-            save_strategy='no',
+            save_strategy='no'
         )
 
         # Initialize the Trainer

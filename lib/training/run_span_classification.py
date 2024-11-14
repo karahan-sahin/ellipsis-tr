@@ -11,7 +11,7 @@ load_dotenv()
 
 def init_wandb(run_name):
     
-    if not args.use_wandb:
+    if args.dev:
         os.environ['WANDB_DISABLED'] = 'true'
         return
 
@@ -51,7 +51,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     parser.add_argument('--report_to', type=str, default='wandb', help='Report to')
     parser.add_argument('--push_to_hub', action='store_true', help='Push to hub')
-    parser.add_argument('--use_wandb', action='store_true', help='Use wandb')
+    parser.add_argument('--dev', action='store_true', help='Use wandb')
 
     parser.add_argument('--train_size', type=str, default='all', help='Train size')
 
@@ -71,6 +71,9 @@ if __name__ == "__main__":
     train_df = pd.read_csv(args.dataset_file)
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
+
+    # Drop duplicates
+
 
     high_count = [
         "Genitive Drop",
@@ -285,7 +288,6 @@ if __name__ == "__main__":
 
     # Define training arguments
     training_args = TrainingArguments(
-
         output_dir=args.output_dir,
         num_train_epochs=args.num_epochs,
         per_device_train_batch_size=args.per_device_train_batch_size,
@@ -301,7 +303,6 @@ if __name__ == "__main__":
         load_best_model_at_end=False,
         logging_dir=args.output_dir,
         seed=args.seed,
-        report_to=args.report_to if args.use_wandb else None,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate,
     )
