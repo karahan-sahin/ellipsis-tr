@@ -53,8 +53,9 @@ def parse_args():
     parser.add_argument('--push_to_hub', action='store_true', help='Push to hub')
     parser.add_argument('--dev', action='store_true', help='Use wandb')
 
-    parser.add_argument('--train_size', type=str, default='all', help='Train size')
-
+    parser.add_argument('--min_count_per_class', type=int, default=None, help='Minimum count per class')
+    parser.add_argument('--max_count_per_class', type=int, default=None, help='Maximum count per class')
+    parser.add_argument('--over_sample', action='store_true', help='Over sample the minority classes')
 
     return parser.parse_args()
 
@@ -79,48 +80,65 @@ if __name__ == "__main__":
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
 
-    high_count = [
-        "Genitive Drop",
-        "Subject Drop",
-        "Gapping",
-        "Argument Drop",
-        "Object Drop",
-        "NP Drop",
-        "No Ellipsis",
-    ]
 
-    mid_count = [
-        "Genitive Drop",
-        "Subject Drop",
-        "Gapping",
-        "Argument Drop",
-        "Object Drop",
-        "Stripping",
-        "NP Drop",
-        "Fragment",
-        "Ki Expression",
-        "No Ellipsis",
-        "VP Ellipsis",
-        "Object CP Drop"
-    ]
+    print('Train Data Before Filtering:')
+    print(train_df['elliptical_type'].value_counts().to_markdown())
 
-    if args.train_size == 'high_count':
-        train_df = train_df[train_df['elliptical_type'].isin(high_count)]
-        val_df = val_df[val_df['elliptical_type'].isin(high_count)]
-        test_df = test_df[test_df['elliptical_type'].isin(high_count)]
-    elif args.train_size == 'mid_count':
-        train_df = train_df[train_df['elliptical_type'].isin(mid_count)]
-        val_df = val_df[val_df['elliptical_type'].isin(mid_count)]
-        test_df = test_df[test_df['elliptical_type'].isin(mid_count)]
+    if args.min_count_per_class is not None:
+        train_counts = train_df.value_counts('elliptical_type').reset_index(name='count') 
+        train_df = train_df[train_df['elliptical_type'].isin(train_counts[train_counts['count'] >= args.min_count_per_class]['elliptical_type'])]
 
-    # Oversample the minority classes
-    def oversample_minority_classes(df):
-        from sklearn.utils import resample
-        df_majority = df['elliptical_type'].value_counts().idxmax()
-        df_minority = df[df['elliptical_type'] != 'No Ellipsis']
-        df_minority_upsampled = resample(df_minority, replace=True, n_samples=len(df_majority), random_state=42)
-        return pd.concat([df_majority, df_minority_upsampled])
-    
+        # If a class is removed from the train set, remove it from the val and test sets as well
+        val_df = val_df[val_df['elliptical_type'].isin(train_df['elliptical_type'])]
+        test_df = test_df[test_df['elliptical_type'].isin(train_df['elliptical_type'])]
+        
+        print('Train Data After Filtering:')
+        print(train_df['elliptical_type'].value_counts().to_markdown())
+        print('*'*20)
+        print('Val Data After Filtering:')
+        print(val_df['elliptical_type'].value_counts().to_markdown())
+        print('*'*20)
+        print('Test Data After Filtering:')
+        print(test_df['elliptical_type'].value_counts().to_markdown())
+        print('*'*20)
+
+    if args.max_count_per_class is not None:
+        # lİMİT THE NUMBER OF EXAMPLES PER CLASS
+        train_df = train_df.groupby('elliptical_type').head(args.max_count_per_class)
+        val_df = val_df.groupby('elliptical_type').head(args.max_count_per_class)
+        test_df = test_df.groupby('elliptical_type').head(args.max_count_per_class)
+
+    if args.over_sample:
+        # Oversample the minority classes
+        def oversample_minority_classes(df, max_majority_count=2000):
+            from sklearn.utils import resample
+            majority_count = df['elliptical_type'].value_counts().max()
+            # First limit the number of examples in the majority class
+            if max_majority_count is not None:
+                majority_count = min(majority_count, max_majority_count)
+                df[df['elliptical_type'] == df['elliptical_type'].value_counts().idxmax()].sample(majority_count)
+                
+            minority_classes = df['elliptical_type'].value_counts().index[1:]
+            for minority_class in minority_classes:
+                minority_df = df[df['elliptical_type'] == minority_class]
+                minority_df = resample(minority_df, replace=True, n_samples=majority_count)
+                df = pd.concat([df, minority_df])
+
+            # Shuffle the DataFrame
+            df = df.sample(frac=1).reset_index(drop=True)
+
+            return df
+        
+        print('Train Data Before Over Sampling:')
+        print(train_df['elliptical_type'].value_counts().to_markdown())
+        print('*'*20)
+
+        train_df = oversample_minority_classes(train_df)
+        
+        print('Train Data After Over Sampling:')
+        print(train_df['elliptical_type'].value_counts().to_markdown())
+        print('*'*20)
+
 
     if args.extraction_type == 'discriminative':
         label_list = [ 'O', 'B-ANTECEDENT', 'I-ANTECEDENT']
