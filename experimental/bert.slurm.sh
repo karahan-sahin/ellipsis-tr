@@ -25,6 +25,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --model_type='encoder' \
                                                 --min_count_per_class=70 \
                                                 --max_count_per_class=5000 \
+                                                --over_sample \
                                                 --num_epochs=50
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
@@ -39,6 +40,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --num_epochs=20 \
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
+                                                 --over_sample \
                                                  --eval_steps=100
 
 
@@ -54,4 +56,5 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --num_epochs=20 \
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
+                                                 --over_sample \
                                                  --eval_steps=100
