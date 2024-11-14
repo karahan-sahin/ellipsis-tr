@@ -71,7 +71,7 @@ if __name__ == "__main__":
         model_type = 'turna'
 
     # Create a new run name
-    run_name = f"{model_type}-{args.extraction_type}-span-classification"
+    run_name = f"{model_type}-{args.extraction_type}-span-classification-mn={args.min_count_per_class}-mx={args.max_count_per_class}-os={args.over_sample}"
     
     init_wandb(run_name)
 
