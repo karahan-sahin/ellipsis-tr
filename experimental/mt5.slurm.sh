@@ -19,20 +19,14 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
                                                 --per_device_eval_batch_size=8 \
-                                                --eval_steps=500 \
-                                                --train_size='mid_count' \
-                                                --model_type='encoder'
-
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
-                                                 --model_name="google/mt5-base" \
-                                                 --hub_model_id='ellipsis-extractive-mt5' \
-                                                 --push_to_hub \
-                                                 --per_device_train_batch_size=64 \
-                                                 --per_device_eval_batch_size=8 \
-                                                 --train_size='mid_count' \
-                                                 --extraction_type='extractive' \
-                                                 --num_epochs=10 \
-                                                 --eval_steps=500
+                                                --gradient_accumulation_steps=8 \
+                                                --learning_rate=2e-7 \
+                                                --eval_steps=100 \
+                                                --model_type='encoder' \
+                                                --min_count_per_class=70 \
+                                                --max_count_per_class=5000 \
+                                                --over_sample \
+                                                --num_epochs=50
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="google/mt5-base" \
@@ -40,7 +34,27 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
-                                                 --train_size='mid_count' \
+                                                 --gradient_accumulation_steps=8 \
                                                  --extraction_type='discriminative' \
-                                                 --num_epochs=10 \
-                                                 --eval_steps=500
+                                                 --learning_rate=2e-7 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=100
+
+
+python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+                                                 --model_name="google/mt5-base" \
+                                                 --hub_model_id='ellipsis-extractive-mt5' \
+                                                 --push_to_hub \
+                                                 --per_device_train_batch_size=64 \
+                                                 --per_device_eval_batch_size=8 \
+                                                 --gradient_accumulation_steps=8 \
+                                                 --extraction_type='extractive' \
+                                                 --learning_rate=2e-7 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=100
