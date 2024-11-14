@@ -3,8 +3,8 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem-per-gpu=40G
-#SBATCH --job-name=ellipsis-bert
-#SBATCH -o ../ellipsis-bert.out
+#SBATCH --job-name=ellipsis-mt5
+#SBATCH -o ../ellipsis-mt5.out
 #SBATCH -t 2-0:00:00
 
 source /opt/python3/venv/base/bin/activate
@@ -14,16 +14,16 @@ ls -ah
 pip install -r requirements.txt
 
 python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.train.csv' \
-                                                --model_name="dbmdz/bert-base-turkish-cased" \
-                                                --hub_model_id='ellipsis-type-bert' \
+                                                --model_name="google/mt5-base" \
+                                                --hub_model_id='ellipsis-type-mt5' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
                                                 --per_device_eval_batch_size=8 \
                                                 --model_type='encoder'
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
-                                                 --model_name="dbmdz/bert-base-turkish-cased" \
-                                                 --hub_model_id='ellipsis-extractive-bert' \
+                                                 --model_name="google/mt5-base" \
+                                                 --hub_model_id='ellipsis-extractive-mt5' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
@@ -32,8 +32,8 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --eval_steps=500
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
-                                                 --model_name="dbmdz/bert-base-turkish-cased" \
-                                                 --hub_model_id='ellipsis-discriminative-bert' \
+                                                 --model_name="google/mt5-base" \
+                                                 --hub_model_id='ellipsis-discriminative-mt5' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
