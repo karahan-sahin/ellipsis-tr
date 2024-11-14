@@ -152,19 +152,18 @@ if __name__ == "__main__":
             evaluation_strategy="steps",
             logging_steps=args.logging_steps,
             eval_steps=args.eval_steps,
-
             learning_rate=args.learning_rate,
             per_device_train_batch_size=args.per_device_train_batch_size,
             per_device_eval_batch_size=args.per_device_eval_batch_size,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
             num_train_epochs=args.num_epochs,
             weight_decay=args.weight_decay,
-
             report_to=args.report_to,
             push_to_hub=args.push_to_hub,
             hub_model_id=args.hub_model_id,
             hub_token=os.environ.get('HF_TOKEN', None),
-            load_best_model_at_end=True,
+            load_best_model_at_end=False,
+            save_strategy='no',
         )
 
         # Initialize the Trainer
