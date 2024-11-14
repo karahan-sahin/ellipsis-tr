@@ -3,8 +3,8 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem-per-gpu=40G
-#SBATCH --job-name=ellipsis-bert
-#SBATCH -o ../ellipsis-bert.out
+#SBATCH --job-name=ellipsis-bert-os
+#SBATCH -o ../ellipsis-bert-os.out
 #SBATCH -t 2-0:00:00
 
 source /opt/python3/venv/base/bin/activate
