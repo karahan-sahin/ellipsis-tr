@@ -79,7 +79,6 @@ if __name__ == "__main__":
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
     test_df = pd.read_csv(args.dataset_file.replace('train', 'test'))
 
-
     high_count = [
         "Genitive Drop",
         "Subject Drop",
@@ -113,6 +112,15 @@ if __name__ == "__main__":
         train_df = train_df[train_df['elliptical_type'].isin(mid_count)]
         val_df = val_df[val_df['elliptical_type'].isin(mid_count)]
         test_df = test_df[test_df['elliptical_type'].isin(mid_count)]
+
+    # Oversample the minority classes
+    def oversample_minority_classes(df):
+        from sklearn.utils import resample
+        df_majority = df['elliptical_type'].value_counts().idxmax()
+        df_minority = df[df['elliptical_type'] != 'No Ellipsis']
+        df_minority_upsampled = resample(df_minority, replace=True, n_samples=len(df_majority), random_state=42)
+        return pd.concat([df_majority, df_minority_upsampled])
+    
 
     if args.extraction_type == 'discriminative':
         label_list = [ 'O', 'B-ANTECEDENT', 'I-ANTECEDENT']

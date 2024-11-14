@@ -21,7 +21,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --per_device_eval_batch_size=8 \
                                                 --gradient_accumulation_steps=8 \
                                                 --learning_rate=1e-5 \
-                                                --eval_steps=200 \
+                                                --eval_steps=100 \
                                                 --train_size='mid_count' \
                                                 --model_type='encoder' \
                                                 --num_epochs=20
@@ -37,7 +37,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --train_size='mid_count' \
                                                  --learning_rate=1e-5 \
                                                  --num_epochs=20 \
-                                                 --eval_steps=200
+                                                 --eval_steps=100
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
@@ -50,5 +50,5 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --train_size='mid_count' \
                                                  --learning_rate=1e-5 \
                                                  --num_epochs=20 \
-                                                 --eval_steps=200
+                                                 --eval_steps=100
 
