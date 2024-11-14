@@ -15,7 +15,12 @@ from lib.training.turna import TrainerForClassification
 from dotenv import load_dotenv
 load_dotenv()
 
-def init_wandb(run_name):
+def init_wandb(run_name, args):
+
+    if args.dev:
+        os.environ['WANDB_DISABLED'] = 'true'
+        return
+
     import wandb
     wandb.login(
         key=os.getenv('WANDB_API_KEY')
@@ -44,12 +49,14 @@ def parse_args():
     parser.add_argument('--evaluation_strategy', type=str, default='steps', help='Evaluation strategy')
     parser.add_argument('--eval_steps', type=int, default=500, help='Evaluation steps')
     parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')
-    parser.add_argument('--report_to', type=str, default=None, help='Report to')
+
     parser.add_argument('--push_to_hub', action='store_true', help='Push to Hub')
     parser.add_argument('--hub_model_id', type=str, default=None, help='Hub model ID')
     parser.add_argument('--per_device_train_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--per_device_eval_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
+
+    parser.add_argument('--dev', action='store_true', help='Development mode')
 
     return parser.parse_args()
 
@@ -59,7 +66,7 @@ if __name__ == "__main__":
 
     # create a wandb run_name
     run_name = f"{args.model_name.split('/')[-1]}-{args.dataset_file.split('/')[-1].split('.')[0]}"
-    init_wandb(run_name)
+    init_wandb(run_name, args)
 
     train_df = pd.read_csv(args.dataset_file)
     val_df = pd.read_csv(args.dataset_file.replace('train', 'val'))
@@ -99,7 +106,7 @@ if __name__ == "__main__":
         )
         # Tokenize the dataset
         def tokenize_function(examples):
-            return tokenizer(examples['text'], padding="max_length", truncation=True)
+            return tokenizer(examples['text'], padding=True, truncation=True)
         
         tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
         tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
@@ -142,10 +149,6 @@ if __name__ == "__main__":
                 )['f1'],
             }
 
-        # Create EarlyStoppingCallback
-        from transformers import EarlyStoppingCallback
-        early_stopping = EarlyStoppingCallback(early_stopping_patience=10)
-
         # Define training arguments
         training_args = TrainingArguments(
             output_dir=args.output_dir,
@@ -158,7 +161,7 @@ if __name__ == "__main__":
             gradient_accumulation_steps=args.gradient_accumulation_steps,
             num_train_epochs=args.num_epochs,
             weight_decay=args.weight_decay,
-            report_to=args.report_to,
+            report_to='wandb' if not args.dev else None,
             push_to_hub=args.push_to_hub,
             hub_model_id=args.hub_model_id,
             hub_token=os.environ.get('HF_TOKEN', None),
@@ -174,7 +177,6 @@ if __name__ == "__main__":
             eval_dataset=tokenized_val_dataset,
             tokenizer=tokenizer,
             compute_metrics=compute_metrics,
-            callbacks=[early_stopping],
         )
 
         # Train the model
