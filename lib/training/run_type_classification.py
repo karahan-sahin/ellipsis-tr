@@ -151,6 +151,7 @@ if __name__ == "__main__":
             output_dir=args.output_dir,
             evaluation_strategy="steps",
             logging_steps=args.logging_steps,
+            eval_steps=args.eval_steps,
 
             learning_rate=args.learning_rate,
             per_device_train_batch_size=args.per_device_train_batch_size,

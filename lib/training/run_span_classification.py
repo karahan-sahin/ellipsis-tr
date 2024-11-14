@@ -207,9 +207,9 @@ if __name__ == "__main__":
         logging_steps=args.logging_steps,
         save_steps=args.save_steps,
         evaluation_strategy="steps",
+        eval_steps=args.eval_steps,
         logging_dir=args.output_dir,
         seed=args.seed,
-        eval_steps=args.eval_steps,
         report_to=args.report_to if args.use_wandb else None,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate
