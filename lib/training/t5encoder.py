@@ -10,13 +10,22 @@ class T5EncoderForSequenceClassification(nn.Module):
         self.num_labels = num_labels
         self.classifier = nn.Linear(self.model.config.d_model, num_labels)
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids, attention_mask, labels=None):
         # Forward pass through the model encoder only
         outputs = self.model.get_encoder()(input_ids=input_ids, attention_mask=attention_mask)
         last_hidden_states = outputs.last_hidden_state
         # Classification head
+        loss = None
         logits = self.classifier(last_hidden_states[:, 0, :])
-        return logits
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+        
+        return {
+            'logits': logits,
+            'last_hidden_states': last_hidden_states,
+            'loss': loss
+        }
     
 class T5EncoderForTokenClassification(nn.Module):
 
@@ -26,10 +35,19 @@ class T5EncoderForTokenClassification(nn.Module):
         self.num_labels = num_labels
         self.classifier = nn.Linear(self.model.config.d_model, num_labels)
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids, attention_mask, labels=None):
         # Forward pass through the model encoder only
         outputs = self.model.get_encoder()(input_ids=input_ids, attention_mask=attention_mask)
         last_hidden_states = outputs.last_hidden_state
         # Classification head
         logits = self.classifier(last_hidden_states)
-        return logits
+        loss = None
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+
+        return {
+            'logits': logits,
+            'last_hidden_states': last_hidden_states,
+            'loss': loss
+        }

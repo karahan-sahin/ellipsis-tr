@@ -150,7 +150,11 @@ if __name__ == "__main__":
 
     # Load tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-    model = AutoModelForTokenClassification.from_pretrained(args.model_name, num_labels=len(label_list))
+    if model_type == 'mt5' or model_type == 'turna':
+        from lib.training.t5encoder import T5EncoderForTokenClassification
+        model = T5EncoderForTokenClassification(args.model_name, num_labels=len(label_list))
+    else:
+        model = AutoModelForTokenClassification.from_pretrained(args.model_name, num_labels=len(label_list))
 
     # Read tokenized_text and discriminative_span and extractive_span columns as lists,
     def read_literal(df):

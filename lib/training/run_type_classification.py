@@ -10,6 +10,7 @@ from transformers import (
     AutoModelForSequenceClassification,
     EarlyStoppingCallback,
 )
+from lib.training.t5encoder import T5EncoderForSequenceClassification
 from lib.training.turna import TrainerForClassification
 
 from dotenv import load_dotenv
@@ -189,11 +190,18 @@ if __name__ == "__main__":
     print_dataset_stats(test_df, 'Test')
 
     if args.model_type == 'encoder':
-        model = AutoModelForSequenceClassification.from_pretrained(
-            args.model_name, 
-            num_labels=num_labels, 
-            id2label=id2label,
-        )
+
+        if model_name == 'turna' or model_name == 'mt5':
+            model = T5EncoderForSequenceClassification(args.model_name, num_labels)
+
+        else:
+            model = AutoModelForSequenceClassification.from_pretrained(
+                args.model_name, 
+                num_labels=num_labels, 
+                id2label=id2label,
+            )
+
+
         # Tokenize the dataset
         def tokenize_function(examples):
             return tokenizer(examples['text'], padding=True, truncation=True)
