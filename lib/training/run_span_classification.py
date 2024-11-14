@@ -38,7 +38,7 @@ def parse_args():
 
     parser.add_argument('--num_labels', type=int, default=9, help='Number of labels')
     parser.add_argument('--batch_size', type=int, default=16, help='Batch size')
-    parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
+    parser.add_argument('--learning_rate', type=float, default=2e-7, help='Learning rate')
     parser.add_argument('--num_epochs', type=int, default=3, help='Number of epochs')
     parser.add_argument('--output_dir', type=str, default='./results', help='Output directory')
     parser.add_argument('--logging_steps', type=int, default=1, help='Logging steps')

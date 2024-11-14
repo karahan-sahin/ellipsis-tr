@@ -43,7 +43,7 @@ def parse_args():
     # Optional arguments
     parser.add_argument('--model_type', type=str, default='encoder' , help='Model type')
     parser.add_argument('--output_dir', type=str, default='./results', help='Directory to save the model')
-    parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate for training')
+    parser.add_argument('--learning_rate', type=float, default=2e-7, help='Learning rate for training')
     parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs to train')
     parser.add_argument('--weight_decay', type=float, default=0.01, help='Weight decay for training')
     parser.add_argument('--evaluation_strategy', type=str, default='steps', help='Evaluation strategy')
@@ -57,6 +57,7 @@ def parse_args():
     parser.add_argument('--per_device_eval_batch_size', type=int, default=2, help='Batch size')
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1, help='Gradient accumulation steps')
 
+    parser.add_argument('--train_size', type=str, default='all', help='Train size')
     parser.add_argument('--dev', action='store_true', help='Development mode')
 
     return parser.parse_args()
