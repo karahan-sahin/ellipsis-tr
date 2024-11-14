@@ -20,6 +20,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --per_device_train_batch_size=64 \
                                                 --per_device_eval_batch_size=8 \
                                                 --eval_steps=500 \
+                                                --train_size='mid_count' \
                                                 --model_type='encoder'
 
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
@@ -28,6 +29,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
+                                                 --train_size='mid_count' \
                                                  --extraction_type='extractive' \
                                                  --num_epochs=10 \
                                                  --eval_steps=500
@@ -38,6 +40,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
+                                                 --train_size='mid_count' \
                                                  --extraction_type='discriminative' \
                                                  --num_epochs=10 \
                                                  --eval_steps=500
