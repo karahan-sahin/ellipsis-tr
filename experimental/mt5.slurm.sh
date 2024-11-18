@@ -21,7 +21,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --per_device_eval_batch_size=8 \
                                                 --gradient_accumulation_steps=8 \
                                                 --learning_rate=5e-5 \
-                                                --eval_steps=100 \
+                                                --eval_steps=50 \
                                                 --model_type='encoder' \
                                                 --min_count_per_class=70 \
                                                 --max_count_per_class=5000 \
@@ -41,7 +41,7 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
                                                  --over_sample \
-                                                 --eval_steps=100
+                                                 --eval_steps=50
 
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
@@ -57,4 +57,4 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
                                                  --over_sample \
-                                                 --eval_steps=100
+                                                 --eval_steps=50
