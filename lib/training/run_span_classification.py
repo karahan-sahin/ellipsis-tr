@@ -64,7 +64,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     if 'bert' in args.model_name:
-        model_type = 'bert'
+        model_type = 'berturk'
     elif 'mt5' in args.model_name:
         model_type = 'mt5'
     elif 'TURNA' in args.model_name:
@@ -351,7 +351,7 @@ if __name__ == "__main__":
         gradient_accumulation_steps=args.gradient_accumulation_steps,
 
         logging_steps=args.logging_steps,
-        save_steps=args.save_steps,
+        save_steps=args.eval_steps,
         eval_steps=args.eval_steps,
         eval_strategy="steps",
         save_strategy='no',

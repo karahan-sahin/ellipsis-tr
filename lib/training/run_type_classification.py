@@ -257,7 +257,6 @@ if __name__ == "__main__":
             output_dir=args.output_dir,
             evaluation_strategy="steps",
             logging_steps=args.logging_steps,
-            eval_steps=args.eval_steps,
             learning_rate=args.learning_rate,
             weight_decay=args.weight_decay,
 
@@ -271,7 +270,10 @@ if __name__ == "__main__":
             hub_model_id=args.hub_model_id,
             hub_token=os.environ.get('HF_TOKEN', None),
             load_best_model_at_end=False,
-            save_strategy='no'
+            save_strategy='steps',
+            eval_steps=args.eval_steps,
+            save_steps=args.eval_steps,
+            save_total_limit=1,
         )
 
         # Initialize the Trainer

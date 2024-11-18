@@ -25,8 +25,8 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --min_count_per_class=70 \
                                                 --max_count_per_class=5000 \
                                                 --over_sample \
-                                                --eval_steps=100 \
-                                                --model_type='encoder_decoder'
+                                                --eval_steps=50 \
+                                                --model_type='encoder'
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="boun-tabi-LMG/TURNA" \
@@ -41,8 +41,7 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
                                                  --over_sample \
-                                                 --eval_steps=100 \
-                                                 --eval_steps=500
+                                                 --eval_steps=50
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="boun-tabi-LMG/TURNA" \
@@ -57,5 +56,4 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --min_count_per_class=70 \
                                                  --max_count_per_class=5000 \
                                                  --over_sample \
-                                                 --eval_steps=100 \
-                                                 --eval_steps=500
+                                                 --eval_steps=50
