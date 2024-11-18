@@ -3,7 +3,7 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem-per-gpu=40G
-#SBATCH --job-name=ellipsis-mt5
+#SBATCH --job-name=ellipsis-mt5-release
 #SBATCH -o ../ellipsis-mt5.out
 #SBATCH -t 2-0:00:00
 
@@ -13,9 +13,9 @@ cd /users/karahan.sahin/ellipsis-tr
 ls -ah
 pip install -r requirements.txt
 
-python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.train.csv' \
+python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.release.train.csv' \
                                                 --model_name="google/mt5-base" \
-                                                --hub_model_id='ellipsis-type-mt5' \
+                                                --hub_model_id='ellipsis-type-mt5-release' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
                                                 --per_device_eval_batch_size=8 \
@@ -28,9 +28,9 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --over_sample \
                                                 --num_epochs=50
 
-python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="google/mt5-base" \
-                                                 --hub_model_id='ellipsis-discriminative-mt5' \
+                                                 --hub_model_id='ellipsis-discriminative-mt5-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
@@ -44,9 +44,9 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --eval_steps=100
 
 
-python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="google/mt5-base" \
-                                                 --hub_model_id='ellipsis-extractive-mt5' \
+                                                 --hub_model_id='ellipsis-extractive-mt5-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \

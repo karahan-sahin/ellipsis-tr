@@ -80,6 +80,11 @@ if __name__ == "__main__":
         model_name = 'turna'
     else:
         raise ValueError(f"Model {args.model_name} is not supported")
+    
+    if 'release' in args.dataset_file:
+        model_name = f'{model_name}-release'
+    if 'challenge' in args.dataset_file:
+        model_name = f'{model_name}-challenge'
 
     # create a wandb run_name
     run_name = f"{model_name}-{args.model_type}-{args.train_size}-type-classification-mn={args.min_count_per_class}-mx={args.max_count_per_class}-os={args.over_sample}"
