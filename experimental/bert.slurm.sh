@@ -3,8 +3,8 @@
 #SBATCH --gpus=1
 #SBATCH --cpus-per-gpu=8
 #SBATCH --mem-per-gpu=40G
-#SBATCH --job-name=ellipsis-bert-os-1
-#SBATCH -o ../ellipsis-bert-os-1.out
+#SBATCH --job-name=ellipsis-bert-release
+#SBATCH -o ../ellipsis-bert-release.out
 #SBATCH -t 2-0:00:00
 
 source /opt/python3/venv/base/bin/activate
@@ -13,9 +13,9 @@ cd /users/karahan.sahin/ellipsis-tr
 ls -ah
 pip install -r requirements.txt
 
-python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.train.csv' \
+python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.release.train.csv' \
                                                 --model_name="dbmdz/bert-base-turkish-cased" \
-                                                --hub_model_id='ellipsis-type-bert' \
+                                                --hub_model_id='ellipsis-type-bert-release' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
                                                 --per_device_eval_batch_size=8 \
@@ -28,9 +28,9 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --over_sample \
                                                 --num_epochs=50
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
-                                                 --hub_model_id='ellipsis-discriminative-bert' \
+                                                 --hub_model_id='ellipsis-discriminative-bert-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \
@@ -44,9 +44,9 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --eval_steps=100
 
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
-                                                 --hub_model_id='ellipsis-extractive-bert' \
+                                                 --hub_model_id='ellipsis-extractive-bert-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
                                                  --per_device_eval_batch_size=8 \

@@ -20,10 +20,14 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --per_device_train_batch_size=4 \
                                                 --per_device_eval_batch_size=2 \
                                                 --gradient_accumulation_steps=32 \
-                                                --eval_steps=500 \
-                                                --model_type='encoder'
+                                                --learning_rate=1e-5 \
+                                                --num_epochs=20 \
+                                                --min_count_per_class=70 \
+                                                --max_count_per_class=5000 \
+                                                --over_sample \
+                                                --eval_steps=100                                                --model_type='encoder_decoder'
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="boun-tabi-LMG/TURNA" \
                                                  --hub_model_id='ellipsis-extractive-turna' \
                                                  --push_to_hub \
@@ -31,10 +35,14 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --per_device_eval_batch_size=2 \
                                                  --gradient_accumulation_steps=32 \
                                                  --extraction_type='extractive' \
-                                                 --num_epochs=10 \
-                                                 --eval_steps=500
+                                                 --learning_rate=1e-5 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=100                                                 --eval_steps=500
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="boun-tabi-LMG/TURNA" \
                                                  --hub_model_id='ellipsis-discriminative-turna' \
                                                  --push_to_hub \
@@ -42,5 +50,9 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --per_device_eval_batch_size=2 \
                                                  --gradient_accumulation_steps=32 \
                                                  --extraction_type='discriminative' \
-                                                 --num_epochs=10 \
-                                                 --eval_steps=500
+                                                 --learning_rate=1e-5 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=100                                                 --eval_steps=500

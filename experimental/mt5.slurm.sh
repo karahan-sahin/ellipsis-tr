@@ -28,7 +28,7 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --over_sample \
                                                 --num_epochs=50
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="google/mt5-base" \
                                                  --hub_model_id='ellipsis-discriminative-mt5' \
                                                  --push_to_hub \
@@ -44,7 +44,7 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --eval_steps=100
 
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.train.csv' \
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.train.csv' \
                                                  --model_name="google/mt5-base" \
                                                  --hub_model_id='ellipsis-extractive-mt5' \
                                                  --push_to_hub \
