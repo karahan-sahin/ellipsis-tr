@@ -69,11 +69,13 @@ if __name__ == "__main__":
         model_type = 'mt5'
     elif 'TURNA' in args.model_name:
         model_type = 'turna'
-
+    else:
+        raise ValueError(f"Model {args.model_name} is not supported")
+    
     if 'release' in args.dataset_file:
-        model_name = f'{model_name}-release'
+        model_type = f'{model_type}-release'
     if 'challenge' in args.dataset_file:
-        model_name = f'{model_name}-challenge'
+        model_type = f'{model_type}-challenge'
 
     # Create a new run name
     run_name = f"{model_type}-{args.extraction_type}-span-classification-mn={args.min_count_per_class}-mx={args.max_count_per_class}-os={args.over_sample}"
