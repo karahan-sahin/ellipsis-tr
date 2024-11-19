@@ -343,10 +343,10 @@ if __name__ == "__main__":
         }
     
 
-    from transformers import TrainerCallback
+    from transformers import EarlyStoppingCallback
     early_stopping = True
     callback = [
-        TrainerCallback.EarlyStoppingCallback(
+        EarlyStoppingCallback(
             early_stopping_patience=4,
             early_stopping_threshold=0.001,
         )
