@@ -366,7 +366,7 @@ if __name__ == "__main__":
         eval_strategy="steps",
         save_strategy='no',
 
-        load_best_model_at_end=False,
+        load_best_model_at_end=True,
         logging_dir=args.output_dir,
         seed=args.seed,
         push_to_hub=args.push_to_hub,

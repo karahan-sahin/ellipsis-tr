@@ -272,7 +272,7 @@ if __name__ == "__main__":
             push_to_hub=args.push_to_hub,
             hub_model_id=args.hub_model_id,
             hub_token=os.environ.get('HF_TOKEN', None),
-            load_best_model_at_end=False,
+            load_best_model_at_end=True,
             save_strategy='steps',
             eval_steps=args.eval_steps,
             save_steps=args.eval_steps,
