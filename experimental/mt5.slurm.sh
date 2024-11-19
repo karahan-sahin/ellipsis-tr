@@ -62,3 +62,55 @@ python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.s
                                                  --max_count_per_class=5000 \
                                                  --over_sample \
                                                  --eval_steps=50
+
+rm -rf models/*
+
+python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.challenge.train.csv' \
+                                                --model_name="google/mt5-base" \
+                                                --hub_model_id='ellipsis-type-mt5-challenge' \
+                                                --push_to_hub \
+                                                --per_device_train_batch_size=64 \
+                                                --per_device_eval_batch_size=8 \
+                                                --gradient_accumulation_steps=8 \
+                                                --learning_rate=5e-5 \
+                                                --eval_steps=50 \
+                                                --model_type='encoder' \
+                                                --min_count_per_class=70 \
+                                                --max_count_per_class=5000 \
+                                                --over_sample \
+                                                --num_epochs=50
+
+rm -rf models/*
+
+
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.challenge.train.csv' \
+                                                 --model_name="google/mt5-base" \
+                                                 --hub_model_id='ellipsis-discriminative-mt5-challenge' \
+                                                 --push_to_hub \
+                                                 --per_device_train_batch_size=64 \
+                                                 --per_device_eval_batch_size=8 \
+                                                 --gradient_accumulation_steps=8 \
+                                                 --extraction_type='discriminative' \
+                                                 --learning_rate=5e-5 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=50
+
+rm -rf models/*
+
+python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.challenge.train.csv' \
+                                                 --model_name="google/mt5-base" \
+                                                 --hub_model_id='ellipsis-extractive-mt5-challenge' \
+                                                 --push_to_hub \
+                                                 --per_device_train_batch_size=64 \
+                                                 --per_device_eval_batch_size=8 \
+                                                 --gradient_accumulation_steps=8 \
+                                                 --extraction_type='extractive' \
+                                                 --learning_rate=5e-5 \
+                                                 --num_epochs=20 \
+                                                 --min_count_per_class=70 \
+                                                 --max_count_per_class=5000 \
+                                                 --over_sample \
+                                                 --eval_steps=50
