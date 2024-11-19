@@ -252,6 +252,9 @@ if __name__ == "__main__":
                 )['f1'],
             }
 
+        # add early stopping
+        early_stopping = EarlyStoppingCallback(early_stopping_patience=4)
+
         # Define training arguments
         training_args = TrainingArguments(
             output_dir=args.output_dir,
@@ -284,6 +287,7 @@ if __name__ == "__main__":
             eval_dataset=tokenized_val_dataset,
             tokenizer=tokenizer,
             compute_metrics=compute_metrics,
+            callbacks=[early_stopping],
         )
 
         # Train the model
@@ -293,56 +297,29 @@ if __name__ == "__main__":
         eval_results = trainer.evaluate(eval_dataset=tokenized_test_dataset)
 
         # Save the evaluation results
-        with open('eval_results.txt', 'w') as f:
-            print(eval_results, file=f)
-
-        # Save the scores
-        scores = eval_results['eval_accuracy']
-        with open('scores.txt', 'w') as f:
-            print(scores, file=f)
+        with open(os.path.join(args.output_dir,'test_results.json'), 'w') as f:
+            import json
+            f.write(json.dumps(eval_results, indent=4))
         
+        eval_inference = trainer.predict(tokenized_test_dataset)
 
-    elif args.model_type == 'encoder_decoder':
-        def tokenize_function(examples):
-            inputs = tokenizer(
-                examples['text'], 
-                padding="max_length", 
-                truncation=True
-            )
-            inputs['labels'] = [label2id[label] for label in examples['elliptical_type']]
-            return inputs
+        # Save the evaluation results
+        with open(os.path.join(args.output_dir,'test_inference.json'), 'w') as f:
+            import json
+            f.write(json.dumps(eval_inference, indent=4))
+
+
+        # Evaluate the model
+        eval_results = trainer.evaluate(eval_dataset=tokenized_val_dataset)
+
+        # Save the evaluation results
+        with open(os.path.join(args.output_dir,'val_results.json'), 'w') as f:
+            import json
+            f.write(json.dumps(eval_results, indent=4))
         
-        tokenized_train_dataset = train_dataset.map(tokenize_function, batched=True)
-        tokenized_val_dataset = val_dataset.map(tokenize_function, batched=True)
-        tokenized_test_dataset = test_dataset.map(tokenize_function, batched=True)
+        eval_inference = trainer.predict(tokenized_val_dataset)
 
-        training_params = {
-            'num_train_epochs': args.num_epochs,
-            'per_device_train_batch_size': args.per_device_train_batch_size,
-            'per_device_eval_batch_size': args.per_device_eval_batch_size,
-            'output_dir': args.output_dir,
-            'evaluation_strategy': 'epoch',
-            'save_strategy': 'epoch',   
-        }
-
-        optimizer_params = {
-            'optimizer_type': 'adafactor',
-            'scheduler': False,
-        }
-
-        model_trainer = TrainerForClassification(
-            model_name=args.model_name,
-            task='classification',
-            training_params=training_params,
-            optimizer_params=optimizer_params,
-            model_save_path=args.output_dir,
-            num_labels=num_labels,
-        )
-
-        trainer, model = model_trainer.train_and_evaluate(tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset)
-
-        model.save_pretrained(args.output_dir)
-        tokenizer.save_pretrained(args.output_dir)
-
-    else:
-        raise ValueError(f"Model type {args.model_type} is not supported")
+        # Save the evaluation results
+        with open(os.path.join(args.output_dir,'val_inference.json'), 'w') as f:
+            import json
+            f.write(json.dumps(eval_inference, indent=4))

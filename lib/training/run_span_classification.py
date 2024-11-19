@@ -341,6 +341,16 @@ if __name__ == "__main__":
             "f1": results["overall_f1"],
             "accuracy": results["overall_accuracy"],
         }
+    
+
+    from transformers import TrainerCallback
+    early_stopping = True
+    callback = [
+        TrainerCallback.EarlyStoppingCallback(
+            early_stopping_patience=4,
+            early_stopping_threshold=0.001,
+        )
+    ]
 
     # Define training arguments
     training_args = TrainingArguments(
@@ -361,6 +371,7 @@ if __name__ == "__main__":
         seed=args.seed,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate,
+        save_total_limit=1,
     )
 
     # Initialize Trainer
@@ -371,7 +382,39 @@ if __name__ == "__main__":
         eval_dataset=tokenized_datasets["validation"],
         tokenizer=tokenizer,
         compute_metrics=compute_metrics,
+        callbacks=callback,
     )
 
     # Train the model
     trainer.train()
+
+    # Evaluate the model
+    eval_results = trainer.evaluate(eval_dataset=tokenized_datasets["test"])
+
+    # Save the evaluation results
+    with open(os.path.join(args.output_dir,'test_results.json'), 'w') as f:
+        import json
+        f.write(json.dumps(eval_results, indent=4))
+    
+    eval_inference = trainer.predict(tokenized_datasets["val"])
+
+    # Save the evaluation results
+    with open(os.path.join(args.output_dir,'test_inference.json'), 'w') as f:
+        import json
+        f.write(json.dumps(eval_inference, indent=4))
+
+
+    # Evaluate the model
+    eval_results = trainer.evaluate(eval_dataset=tokenized_datasets["val"])
+
+    # Save the evaluation results
+    with open(os.path.join(args.output_dir,'val_results.json'), 'w') as f:
+        import json
+        f.write(json.dumps(eval_results, indent=4))
+    
+    eval_inference = trainer.predict(tokenized_datasets["val"])
+
+    # Save the evaluation results
+    with open(os.path.join(args.output_dir,'val_inference.json'), 'w') as f:
+        import json
+        f.write(json.dumps(eval_inference, indent=4))
