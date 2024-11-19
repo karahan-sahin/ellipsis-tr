@@ -364,7 +364,7 @@ if __name__ == "__main__":
         save_steps=args.eval_steps,
         eval_steps=args.eval_steps,
         eval_strategy="steps",
-        save_strategy='no',
+        save_strategy='steps',
 
         load_best_model_at_end=True,
         logging_dir=args.output_dir,
