@@ -276,7 +276,7 @@ if __name__ == "__main__":
             save_strategy='steps',
             eval_steps=args.eval_steps,
             save_steps=args.eval_steps,
-            save_total_limit=1,
+            save_total_limit=0,
         )
 
         # Initialize the Trainer

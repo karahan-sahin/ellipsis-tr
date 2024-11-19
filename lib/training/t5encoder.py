@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
-from transformers import T5ForConditionalGeneration
+from transformers import T5ForConditionalGeneration, PreTrainedModel
 
-class T5EncoderForSequenceClassification(nn.Module):
+class T5EncoderForSequenceClassification(PreTrainedModel):
 
     def __init__(self, model_name, num_labels):
-        super().__init__()
+        super(T5EncoderForSequenceClassification, self).__init__()
         self.model = T5ForConditionalGeneration.from_pretrained(model_name)
         self.num_labels = num_labels
         self.classifier = nn.Linear(self.model.config.d_model, num_labels)
@@ -27,10 +27,10 @@ class T5EncoderForSequenceClassification(nn.Module):
             'loss': loss
         }
     
-class T5EncoderForTokenClassification(nn.Module):
+class T5EncoderForTokenClassification(PreTrainedModel):
 
     def __init__(self, model_name, num_labels):
-        super().__init__()
+        super(T5EncoderForTokenClassification, self).__init__()
         self.model = T5ForConditionalGeneration.from_pretrained(model_name)
         self.num_labels = num_labels
         self.classifier = nn.Linear(self.model.config.d_model, num_labels)

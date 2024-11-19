@@ -155,13 +155,12 @@ if __name__ == "__main__":
 
     label2id = {label: i for i, label in enumerate(label_list)}
 
+    print('Label List:')
+    print(label2id)
+
     # Load tokenizer and model
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
-    if model_type == 'mt5' or model_type == 'turna':
-        from lib.training.t5encoder import T5EncoderForTokenClassification
-        model = T5EncoderForTokenClassification(args.model_name, num_labels=len(label_list))
-    else:
-        model = AutoModelForTokenClassification.from_pretrained(args.model_name, num_labels=len(label_list))
+    model = AutoModelForTokenClassification.from_pretrained(args.model_name, num_labels=len(label_list), id2label={i: label for i, label in enumerate(label_list)}, label2id=label2id)
 
     # Read tokenized_text and discriminative_span and extractive_span columns as lists,
     def read_literal(df):
@@ -371,7 +370,7 @@ if __name__ == "__main__":
         seed=args.seed,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate,
-        save_total_limit=1,
+        save_total_limit=0,
     )
 
     # Initialize Trainer
