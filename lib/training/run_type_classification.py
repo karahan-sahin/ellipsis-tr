@@ -196,15 +196,11 @@ if __name__ == "__main__":
 
     if args.model_type == 'encoder':
 
-        if model_name == 'turna' or model_name == 'mt5':
-            model = T5EncoderForSequenceClassification(args.model_name, num_labels)
-
-        else:
-            model = AutoModelForSequenceClassification.from_pretrained(
-                args.model_name, 
-                num_labels=num_labels, 
-                id2label=id2label,
-            )
+        model = AutoModelForSequenceClassification.from_pretrained(
+            args.model_name, 
+            num_labels=num_labels, 
+            id2label=id2label,
+        )
 
 
         # Tokenize the dataset
@@ -260,8 +256,10 @@ if __name__ == "__main__":
             output_dir=args.output_dir,
             evaluation_strategy="steps",
             logging_steps=args.logging_steps,
+
             learning_rate=args.learning_rate,
             weight_decay=args.weight_decay,
+            optim='adamw_hf' if model_name == 'turna' or model_name == 'mt5' else 'adafactor',
 
             num_train_epochs=args.num_epochs,
             per_device_train_batch_size=args.per_device_train_batch_size,

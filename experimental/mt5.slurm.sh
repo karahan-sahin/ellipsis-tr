@@ -15,6 +15,7 @@ pip install -r requirements.txt
 
 python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.release.train.csv' \
                                                 --model_name="google/mt5-base" \
+                                                --output_dir='models/ellipsis-type-mt5-release' \
                                                 --hub_model_id='ellipsis-type-mt5-release' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
@@ -33,6 +34,7 @@ rm -rf models/*
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="google/mt5-base" \
+                                                 --output_dir='models/ellipsis-discriminative-mt5-release' \
                                                  --hub_model_id='ellipsis-discriminative-mt5-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
@@ -50,6 +52,7 @@ rm -rf models/*
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="google/mt5-base" \
+                                                 --output_dir='models/ellipsis-extractive-mt5-release' \
                                                  --hub_model_id='ellipsis-extractive-mt5-release' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
@@ -67,6 +70,7 @@ rm -rf models/*
 
 python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.classification.challenge.train.csv' \
                                                 --model_name="google/mt5-base" \
+                                                --output_dir='models/ellipsis-type-mt5-challenge' \
                                                 --hub_model_id='ellipsis-type-mt5-challenge' \
                                                 --push_to_hub \
                                                 --per_device_train_batch_size=64 \
@@ -85,6 +89,7 @@ rm -rf models/*
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.challenge.train.csv' \
                                                  --model_name="google/mt5-base" \
+                                                 --output_dir='ellipsis-discriminative-mt5-challenge' \
                                                  --hub_model_id='ellipsis-discriminative-mt5-challenge' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
@@ -102,6 +107,7 @@ rm -rf models/*
 
 python3 -m lib.training.run_span_classification  --dataset_file='data/ellipsis.span.challenge.train.csv' \
                                                  --model_name="google/mt5-base" \
+                                                 --output_dir='models/ellipsis-extractive-mt5-challenge' \
                                                  --hub_model_id='ellipsis-extractive-mt5-challenge' \
                                                  --push_to_hub \
                                                  --per_device_train_batch_size=64 \
