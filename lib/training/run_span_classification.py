@@ -370,7 +370,7 @@ if __name__ == "__main__":
         seed=args.seed,
         push_to_hub=args.push_to_hub,
         learning_rate=args.learning_rate,
-        save_total_limit=0,
+        save_total_limit=1,
     )
 
     # Initialize Trainer

@@ -31,6 +31,9 @@ python3 -m lib.training.run_type_classification --dataset_file='data/ellipsis.cl
                                                 --over_sample \
                                                 --num_epochs=50
 
+
+rm -rf models/*
+
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.challenge.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
                                                  --output_dir='models/discriminative-bert-challenge' \
@@ -47,6 +50,8 @@ python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.s
                                                  --over_sample \
                                                  --eval_steps=50
     
+rm -rf models/*
+
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.challenge.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
                                                  --output_dir='models/extractive-bert-challenge' \
