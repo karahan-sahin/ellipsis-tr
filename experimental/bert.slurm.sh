@@ -31,22 +31,22 @@ mkdir -p models
 #                                                 --over_sample \
 #                                                 --num_epochs=50
 
-python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.release.train.csv' \
-                                                 --model_name="dbmdz/bert-base-turkish-cased" \
-                                                 --output_dir='models/discriminative-bert-release' \
-                                                 --hub_model_id='ellipsis-discriminative-bert-release' \
-                                                 --push_to_hub \
-                                                 --per_device_train_batch_size=64 \
-                                                 --per_device_eval_batch_size=8 \
-                                                 --gradient_accumulation_steps=8 \
-                                                 --extraction_type='discriminative' \
-                                                 --learning_rate=1e-5 \
-                                                 --num_epochs=20 \
-                                                 --min_count_per_class=70 \
-                                                 --max_count_per_class=5000 \
-                                                 --over_sample \
-                                                 --eval_steps=50
-
+# python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.release.train.csv' \
+#                                                  --model_name="dbmdz/bert-base-turkish-cased" \
+#                                                  --output_dir='models/discriminative-bert-release' \
+#                                                  --hub_model_id='ellipsis-discriminative-bert-release' \
+#                                                  --push_to_hub \
+#                                                  --per_device_train_batch_size=64 \
+#                                                  --per_device_eval_batch_size=8 \
+#                                                  --gradient_accumulation_steps=8 \
+#                                                  --extraction_type='discriminative' \
+#                                                  --learning_rate=1e-5 \
+#                                                  --num_epochs=20 \
+#                                                  --min_count_per_class=70 \
+#                                                  --max_count_per_class=5000 \
+#                                                  --over_sample \
+#                                                  --eval_steps=50
+    
 python3 lib/training/run_span_classification.py  --dataset_file='data/ellipsis.span.release.train.csv' \
                                                  --model_name="dbmdz/bert-base-turkish-cased" \
                                                  --output_dir='models/extractive-bert-release' \
